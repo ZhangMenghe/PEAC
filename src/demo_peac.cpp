@@ -98,8 +98,12 @@ cv::Mat_<cv::Vec3f> getPointCloudSparse(std::string filename,cv::Mat&depth){
                 tmp[i] = std::stof(num);
                 i++;
             }while(ss);
-            auto value = cv::Vec3f(tmp[2]*1000.0, tmp[3]*1000.0, tmp[4]*1000.0);
-            auto y = int(tmp[0]); int x = int(tmp[1]);
+            auto value = cv::Vec3f(tmp[2], tmp[3], tmp[4]);
+
+            // auto value = cv::Vec3f(tmp[2]*1000.0, tmp[3]*1000.0, tmp[4]*1000.0);
+             int x = int(tmp[1]);//auto y = int(tmp[0]);
+            float debug_y01 = (720.0f-tmp[0]) / 240.0f;
+            int y = int ((1.0 - (debug_y01 * 0.5 +0.5)) * 480);
             if(y<0 || y >=480 || x <0 || x>=640) continue;
             cloud(y,x) = value;
             auto d = std::sqrt(tmp[2] * tmp[2] + tmp[3]*tmp[3] + tmp[4]*tmp[4]);
@@ -180,9 +184,10 @@ cv::Point maxLoc;
     pf.run(&Ixyz, &member, &seg);
     std::cout<<member.size()<<std::endl;
 
-    for(auto mem:member){
-        std::cout<<mem.size()<<std::endl;
-    }
+    // for(auto mem:member){
+    //     std::cout<<mem.size()<<std::endl;
+
+    // }
 
 
     cv::Mat depth_color;
@@ -203,12 +208,13 @@ int main(int argc, char** argv){
         if(func == "gen"){
             generate_sparse(std::string(argv[3]), postrix);
         }else if(func == "genall"){
-            auto point_files = globFiles("/home/menghe/Github/mediapipe/mappoints/" + postrix + "/*.txt");
+            auto point_files = globFiles("/home/eevee/Github/mediapipe/mappoints/" + postrix + "/*.txt");
+            // auto point_files = globFiles("/home/menghe/Github/mediapipe/mappoints/" + postrix + "/*.txt");
             for(auto pf : point_files) generate_sparse(pf, postrix);
         }else if(func == "run"){
             run_pf(std::string(argv[3]));
         }else if(func == "runall"){
-            auto dense_files = globFiles("/home/menghe/Github/sparse-to-dense/res/" + postrix + "/*_dense.png");
+            auto dense_files = globFiles("/home/eevee/Github/sparse-to-dense/res/" + postrix + "/*_dense.png");
             for(auto df : dense_files) run_pf(df);
         }
     } 
